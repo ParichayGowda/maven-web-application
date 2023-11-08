@@ -1,0 +1,39 @@
+node{
+    
+    def mavenHome = tool name: "Maven_3.9.5"
+    
+    stage('CheckOutCode')
+    {
+    git credentialsId: '079c32fd-3667-4e8c-a5c4-c960717c6fe6', url: 'https://github.com/ParichayGowda/maven-web-application.git'
+    }
+    
+    stage('Build')
+    {
+    sh "${mavenHome}/bin/mvn clean package"
+    }
+    
+    stage('SonarqubeReport')
+    {
+    sh "${mavenHome}/bin/mvn clean sonar:sonar"   
+    }
+    
+    stage('UploadArtifactsIntoRepo')
+    {
+    sh "${mavenHome}/bin/mvn clean deploy"   
+    }
+    
+    stage('DeployAppIntoTomcatServer')
+    {
+    sshagent(['3855ddcb-e3c4-4d16-9265-0eba8d253934']) {
+    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@16.170.214.69:/opt/apache-tomcat-9.0.82/webapps/"
+    }
+    
+    stage("SendEmailNotification")
+    {
+    emailext body: '''Done
+
+    Regards
+    Naruto''', subject: 'Build Done', to: 'parichaymg@gmail.com'
+    }
+}
+}
