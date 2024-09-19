@@ -17,3 +17,5 @@ node{
         sh "cp target/maven-web-application.war /opt/tomcat9/webapps/"
     }
 }
+
+
