@@ -1,0 +1,19 @@
+node{
+    
+    def mavenHome = tool name: "Maven"
+    
+    stage('CheckoutCode')
+    {
+        git credentialsId: '1538e863-d7a3-4161-9f92-65b4f964469a', url: 'https://github.com/ParichayGowda/maven-web-application.git'
+    }
+    
+    stage('Build')
+    {
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    
+    stage('AppnServer')
+    {
+        sh "cp target/maven-web-application.war /opt/tomcat9/webapps/"
+    }
+}
